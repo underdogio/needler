@@ -4,3 +4,5 @@ phantomjs
 *.egg-info
 *.yaml
 *.py[co]
+build
+dist
