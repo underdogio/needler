@@ -1,0 +1,31 @@
+#!/usr/bin/env python
+import argparse
+import sys
+
+import needler
+import yaml
+
+parser = argparse.ArgumentParser(prog='Needler')
+parser.add_argument('-c', '--config', default='needler.yaml')
+parser.add_argument('-b', '--baseline', action='store_true', default=False)
+parser.add_argument('-d', '--baseline-directory', dest='baseline_directory', default='screenshots/baseline')
+
+args = parser.parse_args()
+with open(args.config, 'r') as fp:
+    config = yaml.load(fp)
+
+# Override config settings from command line arguments
+config['baseline'] = args.baseline
+config['baseline_directory'] = args.baseline_directory
+
+runner = needler.Runner(config)
+results = runner.run()
+
+for error in results.errors:
+    case, msg = error
+    print 'Error running test for case: {name}'.format(name=case.name)
+    print msg
+
+# `0` on success, `1` on error
+exit_code = 0 if results.wasSuccessful() else 1
+sys.exit(exit_code)

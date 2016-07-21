@@ -1,0 +1,3 @@
+PyYAML==3.11
+needle==0.2.1
+selenium==2.53.6

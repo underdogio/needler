@@ -1,0 +1,6 @@
+ghostdriver.log
+screenshots
+phantomjs
+*.egg-info
+*.yaml
+*.py[co]
