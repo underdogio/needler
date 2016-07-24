@@ -1,26 +1,22 @@
 needler
 =======
 
-Needler is a visual diff test suite runner for
-`needle <https://github.com/bfirsh/needle>`__.
+Needler is a visual diff test suite runner for `needle <https://github.com/bfirsh/needle>`__.
 
-By providing ``needler`` a YAML config defining the pages and components
-you wish to visually assert on.
+By providing ``needler`` a YAML config defining the pages and components you wish to visually assert on.
 
-**Note:** This project is still in development and not yet released,
-please use at your own risk.
+**Note:** This project is still in development and not yet released, please use at your own risk.
 
 Installing
 ----------
-
-When installing ``needler`` will automatically try to download a
-prebuilt binary for `PhantomJS <http://phantomjs.org/>`__.
 
 .. code:: bash
 
     git clone https://github.com/underdogio/needler
     cd ./needler
     python setup.py install
+
+Along with installing `needler` you will have to manually install any browser, or diffing software that you will need (e.g. `perceptualdiff <http://pdiff.sourceforge.net/>`__, `phantomjs <http://phantomjs.org/>`__, etc).
 
 CLI Interface
 -------------
@@ -29,12 +25,15 @@ CLI Interface
 
     $ needler --help
     usage: Needler [-h] [-c CONFIG] [-b] [-d BASELINE_DIRECTORY]
+                   [-o OUTPUT_DIRECTORY]
 
     optional arguments:
       -h, --help            show this help message and exit
+      -v, --version         show program's version number and exit
       -c CONFIG, --config CONFIG
       -b, --baseline
       -d BASELINE_DIRECTORY, --baseline-directory BASELINE_DIRECTORY
+      -o OUTPUT_DIRECTORY, --output-directory OUTPUT_DIRECTORY
 
 Example
 -------
@@ -45,9 +44,9 @@ Given the following config file.
 
     # needler.yaml
     cases:
-      cnn_nav:
-        url: 'http://www.cnn.com'
-        selector: '#nav__plain-header'
+      homepage_content:
+        url: 'http://localhost:5000/'
+        selector: '.content'
 
 .. code:: bash
 
@@ -59,3 +58,27 @@ Given the following config file.
     # Run the test cases and assert they are the
     # same as the baseline images
     needler
+
+Config file
+-----------
+
+The `needler.yaml` config file is used to tell `needler` which test cases it should generate and how to run them.
+
+.. code:: yaml
+
+    # needler.yaml
+    driver: firefox
+    engine: perceptualdiff
+    sizes:
+      extra_large: 1440x809
+      large: 1024x575
+      medium: 768x1024
+      small: 530x946
+    cases:
+      test_app:
+        url: 'http://localhost:5000/'
+        selector: '.content'
+
+The above example will tell `needler` to use the `firefox` driver, and the `perceptualdiff` command to test the image differences.
+
+As well, it will generate 4 test cases, `homepage_content_extra_large`, `homepage_content_large`, `homepage_content_medium`, and `homepage_content_small`.
