@@ -1,30 +1,40 @@
 #!/usr/bin/env python
 import argparse
+import os
 import sys
 
-import needler
-import yaml
+from needler import NeedlerConfig, NeedlerSuite, NeedlerResults
+from needler.version import __version__
 
-parser = argparse.ArgumentParser(prog='Needler')
+# Parse command line arguments
+parser = argparse.ArgumentParser(prog='needler', version=__version__)
 parser.add_argument('-c', '--config', default='needler.yaml')
 parser.add_argument('-b', '--baseline', action='store_true', default=False)
-parser.add_argument('-d', '--baseline-directory', dest='baseline_directory', default='screenshots/baseline')
-
+parser.add_argument('-d', '--baseline-directory', dest='baseline_directory')
+parser.add_argument('-o', '--output-directory', dest='output_directory')
 args = parser.parse_args()
-with open(args.config, 'r') as fp:
-    config = yaml.load(fp)
 
-# Override config settings from command line arguments
-config['baseline'] = args.baseline
-config['baseline_directory'] = args.baseline_directory
+# Parse config file
+config = NeedlerConfig.from_file(args.config)
 
-runner = needler.Runner(config)
-results = runner.run()
+# Override config values from command like arguments
+config.baseline = args.baseline
+if args.baseline_directory:
+    config.baseline_directory = args.baseline_directory
+if args.output_directory:
+    config.output_directory = args.output_directory
 
-for error in results.errors:
-    case, msg = error
-    print 'Error running test for case: {name}'.format(name=case.name)
-    print msg
+# Make sure out baseline/output directories exist
+if not os.path.isdir(config.baseline_directory):
+    os.makedirs(config.baseline_directory)
+if not os.path.isdir(config.output_directory):
+    os.makedirs(config.output_directory)
+
+# Create our test suite and run
+results = NeedlerResults.from_config(config)
+suite = NeedlerSuite.from_config(config)
+results = suite.run(results)
+results.print_results()
 
 # `0` on success, `1` on error
 exit_code = 0 if results.wasSuccessful() else 1
