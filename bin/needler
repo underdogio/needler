@@ -4,10 +4,9 @@ import os
 import sys
 
 from needler import NeedlerConfig, NeedlerSuite, NeedlerResults
-from needler.version import __version__
 
 # Parse command line arguments
-parser = argparse.ArgumentParser(prog='needler', version=__version__)
+parser = argparse.ArgumentParser(prog='needler', version='0.1.0')
 parser.add_argument('-c', '--config', default='needler.yaml')
 parser.add_argument('-b', '--baseline', action='store_true', default=False)
 parser.add_argument('-d', '--baseline-directory', dest='baseline_directory')

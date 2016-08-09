@@ -1,10 +1,8 @@
 from setuptools import find_packages, setup
 
-from needler.version import __version__
-
 setup(
     name='needler',
-    version=__version__,
+    version='0.1.0',
     description='Visually diff test case runner',
     long_description=open('README.rst').read(),
     author='Underdog.io Engineering',
