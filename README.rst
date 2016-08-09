@@ -34,6 +34,7 @@ CLI Interface
       -b, --baseline
       -d BASELINE_DIRECTORY, --baseline-directory BASELINE_DIRECTORY
       -o OUTPUT_DIRECTORY, --output-directory OUTPUT_DIRECTORY
+      -j, --json
 
 Example
 -------
@@ -44,9 +45,12 @@ Given the following config file.
 
     # needler.yaml
     cases:
-      homepage_content:
+      homepage:
         url: 'http://localhost:5000/'
-        selector: '.content'
+        components:
+          content: '.content'
+          header: '.header'
+          footer: '.footer'
 
 .. code:: bash
 
@@ -75,10 +79,21 @@ The `needler.yaml` config file is used to tell `needler` which test cases it sho
       medium: 768x1024
       small: 530x946
     cases:
-      test_app:
+      homepage:
         url: 'http://localhost:5000/'
-        selector: '.content'
+        components:
+          header: '.header'
+          footer: '.footer'
 
 The above example will tell `needler` to use the `firefox` driver, and the `perceptualdiff` command to test the image differences.
 
-As well, it will generate 4 test cases, `homepage_content_extra_large`, `homepage_content_large`, `homepage_content_medium`, and `homepage_content_small`.
+As well, it will generate 8 test cases, one for each case/component/size combination:
+
+- `homepage_header_extra_large`
+- `homepage_header_large`
+- `homepage_header_medium`
+- `homepage_header_small`.
+- `homepage_footer_extra_large`
+- `homepage_footer_large`
+- `homepage_footer_medium`
+- `homepage_footer_small`.
