@@ -25,7 +25,7 @@ CLI Interface
 
     $ needler --help
     usage: Needler [-h] [-c CONFIG] [-b] [-d BASELINE_DIRECTORY]
-                   [-o OUTPUT_DIRECTORY]
+                   [-o OUTPUT_DIRECTORY] [-j]
 
     optional arguments:
       -h, --help            show this help message and exit
