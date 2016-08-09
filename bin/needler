@@ -12,6 +12,7 @@ parser.add_argument('-c', '--config', default='needler.yaml')
 parser.add_argument('-b', '--baseline', action='store_true', default=False)
 parser.add_argument('-d', '--baseline-directory', dest='baseline_directory')
 parser.add_argument('-o', '--output-directory', dest='output_directory')
+parser.add_argument('-j', '--json', dest='as_json', action='store_true', default=False)
 args = parser.parse_args()
 
 # Parse config file
@@ -19,6 +20,7 @@ config = NeedlerConfig.from_file(args.config)
 
 # Override config values from command like arguments
 config.baseline = args.baseline
+config.as_json = args.as_json
 if args.baseline_directory:
     config.baseline_directory = args.baseline_directory
 if args.output_directory:
@@ -31,7 +33,7 @@ if not os.path.isdir(config.output_directory):
     os.makedirs(config.output_directory)
 
 # Create our test suite and run
-results = NeedlerResults.from_config(config)
+results = NeedlerResults(config)
 suite = NeedlerSuite.from_config(config)
 results = suite.run(results)
 results.print_results()
