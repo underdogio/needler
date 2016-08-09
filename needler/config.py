@@ -21,6 +21,7 @@ BROWSER_MAP = dict(
 class NeedlerConfig(object):
     def __init__(self, config):
         self.config = config
+        self.as_json = False
 
     @classmethod
     def from_file(cls, filename):
@@ -50,6 +51,17 @@ class NeedlerConfig(object):
     def baseline_directory(self, value):
         self.config['baseline_directory'] = value
 
+    def get_baseline_file(self, test_name):
+        return os.path.join(self.baseline_directory, '{test_name}.png'.format(test_name=test_name))
+
+    def get_output_file(self, test_name):
+        return os.path.join(self.output_directory, '{test_name}.png'.format(test_name=test_name))
+
+    def get_diff_file(self, test_name):
+        if self.config.get('engine', 'pil') in ('perceptualdiff', 'imagemagick'):
+            return os.path.join(self.output_directory, '{test_name}.diff.png'.format(test_name=test_name))
+        return None
+
     @property
     def output_directory(self):
         return self.config.get('output_directory', DEFAULT_OUTPUT)
@@ -74,7 +86,7 @@ class NeedlerConfig(object):
     @property
     def engine_class(self):
         engine_name = self.config.get('engine', 'pil')
-        if engine_name == 'percetualdiff':
+        if engine_name == 'perceptualdiff':
             return 'needle.engines.perceptualdiff_engine.Engine'
         elif engine_name == 'imagemagick':
             return 'needle.engines.imagemagick_engine.Engine'
@@ -95,21 +107,28 @@ class NeedlerConfig(object):
     def cases(self):
         cases = self.config.get('cases', dict())
         for size in self.sizes:
-            for name, original_settings in cases.iteritems():
+            for suite_name, original_settings in cases.items():
                 # Make a copy since we might loop a few times and `dict`s are mutable
-                settings = copy.deepcopy(original_settings)
+                suite_settings = copy.deepcopy(original_settings)
 
-                if 'selector' not in settings:
-                    raise Exception('Expected test case "{name}" to have a "selector" property, none was found'
-                                    .format(name=name))
-                if 'url' not in settings:
-                    raise Exception('Expected test case "{name}" to have a "url" property, none was found'
-                                    .format(name=name))
+                if 'components' not in suite_settings:
+                    raise Exception('Expected test suite "{name}" to have a "components" property, none was found'
+                                    .format(name=suite_name))
+                if 'url' not in suite_settings:
+                    raise Exception('Expected test suite "{name}" to have a "url" property, none was found'
+                                    .format(name=suite_name))
 
-                name = settings.get('name', name)
+                suite_name = suite_settings.get('name', suite_name)
                 if size['name']:
-                    name = '{name}_{size}'.format(name=name, size=size['name'])
-                settings['name'] = name
-                settings['width'] = size['width']
-                settings['height'] = size['height']
-                yield settings
+                    suite_name = '{name}_{size}'.format(name=suite_name, size=size['name'])
+
+                for component_name, selector in suite_settings['components'].items():
+                    case_name = '{suite_name}_{component_name}'.format(suite_name=suite_name,
+                                                                       component_name=component_name)
+                    yield dict(
+                        url=suite_settings['url'],
+                        name=case_name,
+                        selector=selector,
+                        height=size['height'],
+                        width=size['width']
+                    )
